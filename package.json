@@ -1,0 +1,56 @@
+{
+  "name": "che-osio-probot-app",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Open Cloud Developer Workspace on https://che.openshift.io",
+  "author": "Florent Benoit <fbenoit@redhat.com>",
+  "license": "EPL-2.0",
+  "repository": "https://github.com/benoitf/che-osio-probot-app.git",
+  "homepage": "https://github.com/benoitf/che-osio-probot-app",
+  "bugs": "https://github.com/benoitf/che-osio-probot-app/issues",
+  "keywords": [
+    "probot",
+    "github",
+    "probot-app",
+    "che.openshift.io"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "nodemon --exec \"yarn start\"",
+    "start": "probot run ./lib/index.js",
+    "now-start": "PRIVATE_KEY=$(echo $PRIVATE_KEY | base64 -d) npm start",
+    "lint": "standard **/*.ts --fix",
+    "test": "jest && standard **/*.ts",
+    "test:watch": "jest --watch --notify --notifyMode=change --coverage"
+  },
+  "dependencies": {
+    "probot": "^9.6.6"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.19",
+    "@types/node": "^12.11.1",
+    "@typescript-eslint/parser": "^2.10.0",
+    "@typescript-eslint/eslint-plugin": "^2.10.0",
+    "jest": "^24.9.0",
+    "nodemon": "^2.0.0",
+    "smee-client": "^1.1.0",
+    "standard": "^14.3.1",
+    "ts-jest": "^24.2.0",
+    "typescript": "^3.7.3"
+  },
+  "engines": {
+    "node": ">= 8.3.0"
+  },
+  "standard": {
+    "parser": "@typescript-eslint/parser",
+    "env": [
+      "jest"
+    ],
+    "plugins": [
+      "@typescript-eslint"
+    ]
+  },
+  "jest": {
+    "testEnvironment": "node"
+  }
+}
