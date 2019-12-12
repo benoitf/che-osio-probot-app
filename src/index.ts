@@ -9,15 +9,35 @@ export = (app: Application) => {
     const prBranchName = pr.head.ref
     const repoUrl = pr.head.repo.html_url
 
-    const statusParams: ReposCreateStatusParams = {
-      repo: ctxRepo.repo,
-      owner: ctxRepo.owner,
-      sha: pr.head.sha,
-      state: 'success',
-      description: 'Open Cloud Developer Workspace',
-      context: 'che.openshift.io',
-      target_url: `https://che.openshift.io/f/?url=${repoUrl}/tree/${prBranchName}`
+    const DEFAULT_OPTIONS = {
+      addComment: true,
+      addStatus: true,
+      cheInstance: 'https://che.openshift.io'
     }
-    await context.github.repos.createStatus(statusParams)
+
+    // Load config from .github/che-workspace.yaml
+    const config: any = await context.config('che-workspace.yaml', DEFAULT_OPTIONS)
+
+    const targetUrl = `${config.cheInstance}/f/?url=${repoUrl}/tree/${prBranchName}`
+
+    if (config && config.addStatus) {
+      const statusParams: ReposCreateStatusParams = {
+        repo: ctxRepo.repo,
+        owner: ctxRepo.owner,
+        sha: pr.head.sha,
+        state: 'success',
+        description: 'Open Cloud Developer Workspace',
+        context: 'che.openshift.io',
+        target_url: targetUrl
+      }
+      await context.github.repos.createStatus(statusParams)
+    }
+
+    if (config && config.addComment) {
+      const comment = `Open Developer Workspace:\n[![Contribute](https://che.openshift.io/factory/resources/factory-contribute.svg)](${targetUrl})`
+
+      const issueComment = context.issue({ body: comment })
+      await context.github.issues.createComment(issueComment)
+    }
   })
 }

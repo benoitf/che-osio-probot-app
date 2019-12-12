@@ -20,7 +20,11 @@ describe('che.openshift.io Probot app', () => {
       checks: {
         create: jest.fn().mockResolvedValue(0)
       },
+      issues: {
+        createComment: jest.fn().mockResolvedValue(0)
+      },
       repos: {
+        getContents: jest.fn().mockResolvedValue({ data: { content: '' } }),
         createStatus: jest.fn().mockResolvedValue({})
       }
     }
@@ -51,10 +55,25 @@ describe('che.openshift.io Probot app', () => {
         target_url: 'https://che.openshift.io/f/?url=https://github.com/benoitf/example1/tree/new-branch-fork'
       }
     )
+
+    // expect comment is created as well
+    expect(github.issues.createComment).toBeCalled()
+    // one param
+    expect(github.issues.createComment.mock.calls[0].length).toBe(1)
+    // check parameter
+    expect(github.issues.createComment.mock.calls[0][0]).toStrictEqual(
+      {
+        number: 8,
+        body: 'Open Developer Workspace:\n[![Contribute](https://che.openshift.io/factory/resources/factory-contribute.svg)](https://che.openshift.io/f/?url=https://github.com/benoitf/example1/tree/new-branch-fork)',
+        owner: 'florent-benoit',
+        repo: 'example1'
+      }
+    )
+
     done()
   })
 
-  test('Check PR status with forked repo/branch', async (done) => {
+  test('Check PR status with custom branch', async (done) => {
     await probot.receive({
       name: pullRequestFromBranchRequest.event,
       payload: pullRequestFromBranchRequest.payload
@@ -101,6 +120,85 @@ describe('che.openshift.io Probot app', () => {
         target_url: 'https://che.openshift.io/f/?url=https://github.com/florent-benoit/example1/tree/custom-branch'
       }
     )
+    done()
+  })
+
+  test('Check no status being added if addStatus is false', async (done) => {
+    const yaml = Buffer.from('addStatus: false').toString('base64')
+
+    github.repos.getContents = jest.fn().mockResolvedValue({ data: { content: yaml } })
+
+    await probot.receive({
+      name: pullRequestFromBranchRequest.event,
+      payload: pullRequestFromBranchRequest.payload
+    })
+
+    expect(github.repos.createStatus).not.toHaveBeenCalled()
+
+    // comment still called
+    expect(github.issues.createComment).toBeCalled()
+
+    done()
+  })
+
+  test('Check no comment being added if addComment is false', async (done) => {
+    const yaml = Buffer.from('addComment: false').toString('base64')
+
+    github.repos.getContents = jest.fn().mockResolvedValue({ data: { content: yaml } })
+
+    await probot.receive({
+      name: pullRequestFromBranchRequest.event,
+      payload: pullRequestFromBranchRequest.payload
+    })
+
+    expect(github.issues.createComment).not.toHaveBeenCalled()
+
+    // status still called
+    expect(github.repos.createStatus).toBeCalled()
+
+    done()
+  })
+
+  test('Check PR status/comment with custom cheInstance', async (done) => {
+    const yaml = Buffer.from('cheInstance: https://www.my-che-instance.foo').toString('base64')
+    github.repos.getContents = jest.fn().mockResolvedValue({ data: { content: yaml } })
+
+    await probot.receive({
+      name: pullRequestFromForkRequest.event,
+      payload: pullRequestFromForkRequest.payload
+    })
+
+    expect(github.repos.createStatus).toBeCalled()
+    // one param
+    expect(github.repos.createStatus.mock.calls[0].length).toBe(1)
+
+    // check parameter
+    expect(github.repos.createStatus.mock.calls[0][0]).toStrictEqual(
+      {
+        context: 'che.openshift.io',
+        description: 'Open Cloud Developer Workspace',
+        owner: 'florent-benoit',
+        repo: 'example1',
+        sha: '4c2f49fbb407dae27e37438b9227f9e6fdef6070',
+        state: 'success',
+        target_url: 'https://www.my-che-instance.foo/f/?url=https://github.com/benoitf/example1/tree/new-branch-fork'
+      }
+    )
+
+    // expect comment is created as well
+    expect(github.issues.createComment).toBeCalled()
+    // one param
+    expect(github.issues.createComment.mock.calls[0].length).toBe(1)
+    // check parameter
+    expect(github.issues.createComment.mock.calls[0][0]).toStrictEqual(
+      {
+        number: 8,
+        body: 'Open Developer Workspace:\n[![Contribute](https://che.openshift.io/factory/resources/factory-contribute.svg)](https://www.my-che-instance.foo/f/?url=https://github.com/benoitf/example1/tree/new-branch-fork)',
+        owner: 'florent-benoit',
+        repo: 'example1'
+      }
+    )
+
     done()
   })
 })

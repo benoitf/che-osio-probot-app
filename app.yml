@@ -63,6 +63,8 @@ default_permissions:
   # Repository contents, commits, branches, downloads, releases, and merges.
   # https://developer.github.com/v3/apps/permissions/#permission-on-contents
   # contents: read
+  single_file: write
+  singe_file_name: .github/che-workspace.yaml
 
   # Deployments and deployment statuses.
   # https://developer.github.com/v3/apps/permissions/#permission-on-deployments
