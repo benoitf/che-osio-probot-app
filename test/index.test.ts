@@ -64,7 +64,7 @@ describe('che.openshift.io Probot app', () => {
     expect(github.issues.createComment.mock.calls[0][0]).toStrictEqual(
       {
         number: 8,
-        body: 'Open Developer Workspace:\n[![Contribute](https://che.openshift.io/factory/resources/factory-contribute.svg)](https://che.openshift.io/f/?url=https://github.com/benoitf/example1/tree/new-branch-fork)',
+        body: 'Open Developer Workspace:\n[![Contribute](https://www.eclipse.org/che/contribute.svg)](https://che.openshift.io/f/?url=https://github.com/benoitf/example1/tree/new-branch-fork)',
         owner: 'florent-benoit',
         repo: 'example1'
       }
@@ -193,7 +193,7 @@ describe('che.openshift.io Probot app', () => {
     expect(github.issues.createComment.mock.calls[0][0]).toStrictEqual(
       {
         number: 8,
-        body: 'Open Developer Workspace:\n[![Contribute](https://che.openshift.io/factory/resources/factory-contribute.svg)](https://www.my-che-instance.foo/f/?url=https://github.com/benoitf/example1/tree/new-branch-fork)',
+        body: 'Open Developer Workspace:\n[![Contribute](https://www.eclipse.org/che/contribute.svg)](https://www.my-che-instance.foo/f/?url=https://github.com/benoitf/example1/tree/new-branch-fork)',
         owner: 'florent-benoit',
         repo: 'example1'
       }
