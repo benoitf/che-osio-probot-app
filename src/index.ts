@@ -34,7 +34,7 @@ export = (app: Application) => {
     }
 
     if (config && config.addComment) {
-      const comment = `Open Developer Workspace:\n[![Contribute](https://che.openshift.io/factory/resources/factory-contribute.svg)](${targetUrl})`
+      const comment = `Open Developer Workspace:\n[![Contribute](https://www.eclipse.org/che/contribute.svg)](${targetUrl})`
 
       const issueComment = context.issue({ body: comment })
       await context.github.issues.createComment(issueComment)
